@@ -62,7 +62,6 @@ async def message_handler(message: Message) -> None:
         input_data = InputModel(**json.loads(message.text))
         await message.answer(get_dataset(input_data))
     except Exception as e:
-        raise e
         logging.error(f"{type(e).__name__} for msg \"{message.text}\": {str(e)}")
         await message.answer(help_msg)
 
@@ -82,7 +81,6 @@ def get_dataset(input_model: InputModel) -> str:
     for doc in sorted_documents[start_index + 1:]:
         if doc["dt"] > input_model.date_upto:
             return extend_dataset(result, input_model)
-            # return str(result)
         if doc["dt"].__getattribute__(group_type) != date_anchor:
             result["dataset"].append(doc["value"])
             result["labels"].append(
@@ -100,7 +98,6 @@ def normalize_date_label(
     date_label: datetime.datetime,
     input_model: InputModel
 ) -> datetime.datetime:
-    copy = date_label
     order = {
         "second": 0, "minute": 0, "hour": 0, "day": 1, "month": 1
     }
@@ -110,7 +107,6 @@ def normalize_date_label(
             break
         reset_params[key] = value
     date_label = date_label.replace(**reset_params)
-    print(f"Normalized {copy} to {date_label}")
     return date_label
 
 
@@ -122,11 +118,9 @@ def extend_dataset(existing_dataset: dict, input_model: InputModel) -> str:
 
     while current_date <= date_upto:
         if normalize_date_label(current_date, input_model).isoformat() not in existing_dataset["labels"]:
-            print(f"Not found {normalize_date_label(current_date, input_model).isoformat()}")
             extended["dataset"].append(0)
             extended["labels"].append(current_date.isoformat())
         else:
-            print(f"Found {normalize_date_label(current_date, input_model).isoformat()}")
             extended["dataset"].append(existing_dataset["dataset"].pop(0))
             extended["labels"].append(existing_dataset["labels"].pop(0))
 
