@@ -1,0 +1,5 @@
+pymongo==4.7.1
+pydantic==2.7.1
+choicesenum==0.7.0
+aiogram==3.6.0
+python-dotenv==1.0.1
