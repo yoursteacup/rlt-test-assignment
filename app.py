@@ -126,7 +126,7 @@ def extend_dataset(existing_dataset: dict, input_model: InputModel) -> str:
 
         current_date += relativedelta(**{group_type: 1})
 
-    return str(extended)
+    return json.dumps(extended)
 
 
 @lru_cache(maxsize=None)
