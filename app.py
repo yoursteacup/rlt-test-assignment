@@ -43,6 +43,8 @@ class GroupEnum(ChoicesEnum):
 
 
 class InputModel(BaseModel):
+    """Модель валидации для входящих данных"""
+
     date_from: datetime.datetime
     date_upto: datetime.datetime
     group_type: GroupEnum
@@ -57,6 +59,8 @@ class InputModel(BaseModel):
 
 @dispatcher.message()
 async def message_handler(message: Message) -> None:
+    """Обработчик сообщений Telegram бота"""
+
     input_data: InputModel
     try:
         input_data = InputModel(**json.loads(message.text))
@@ -67,6 +71,11 @@ async def message_handler(message: Message) -> None:
 
 
 def get_dataset(input_model: InputModel) -> str:
+    """Формирование ответа по агрегации
+    1. Находим индекс в отсортированной коллекции
+    2. Агрегируем значения по "шагу" агрегации
+    3. Применяем "расширение" для исходящего формата и возвращаем коллекцию"""
+
     start_index = get_index_by_date(input_model.date_from)
     group_type = str(input_model.group_type)
     date_anchor = sorted_documents[start_index]["dt"].__getattribute__(group_type)
@@ -98,6 +107,8 @@ def normalize_date_label(
     date_label: datetime.datetime,
     input_model: InputModel
 ) -> datetime.datetime:
+    """Нормализация дат для временных меток по "шагу" агрегации"""
+
     order = {
         "second": 0, "minute": 0, "hour": 0, "day": 1, "month": 1
     }
@@ -111,6 +122,8 @@ def normalize_date_label(
 
 
 def extend_dataset(existing_dataset: dict, input_model: InputModel) -> str:
+    """Расширение датасета для "плавного" и "пошагового" отображения метрик"""
+
     group_type = input_model.group_type.value + "s"
     current_date = input_model.date_from
     date_upto = input_model.date_upto
@@ -131,6 +144,8 @@ def extend_dataset(existing_dataset: dict, input_model: InputModel) -> str:
 
 @lru_cache(maxsize=None)
 def get_index_by_date(date: datetime.datetime) -> int:
+    """Поиск индекса документа с подходящей датой"""
+
     left, right = 0, len(sorted_documents) - 1
     while left <= right:
         mid = (left + right) // 2
